@@ -1,23 +1,11 @@
 {
-  "name": "aurum-master-repo",
+  "name": "aurum-master",
   "version": "1.0.0",
-  "description": "Master Repository for Agency Multi-Tenant Landing Pages",
-  "main": "api/meta-purchase.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "vercel",
-    "meta",
-    "capi",
-    "serverless"
-  ],
-  "author": "Aurum Agency",
-  "license": "ISC",
-  "dependencies": {
-    "node-fetch": "^3.3.2" 
-  },
+  "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "20.x"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
   }
 }
