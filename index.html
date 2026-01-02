@@ -79,6 +79,21 @@
 
   <script>
     // ==========================================
+    // 🎲 0. CONFIGURACIÓN DEL ROTADOR DE WHATSAPP
+    // ==========================================
+    const WHATSAPP_NUMBERS = [
+      "5492235568815",
+      "5492235867115",
+      "5492235575929",
+      "5492236797994"
+    ];
+
+    function getRandomWhatsApp() {
+      const randomIndex = Math.floor(Math.random() * WHATSAPP_NUMBERS.length);
+      return WHATSAPP_NUMBERS[randomIndex];
+    }
+
+    // ==========================================
     // 🎭 1. CONFIGURACIÓN DE MARCAS (SISTEMA CAMALEÓN)
     // ==========================================
     const BRANDS = {
@@ -89,7 +104,7 @@
       },
       'rubi': { 
         name: 'IMPERIO RUBÍ', 
-        emoji: '❤️', // O puedes usar 🩸 o 🛑
+        emoji: '❤️', 
         color: '#ff3131' // Rojo Neón Intenso
       },
       'default': { 
@@ -184,7 +199,6 @@
 
     // --- Envío de Datos al Sheet (Protegido) ---
     function safeSend(payload) {
-      // Si la configuración no cargó todavía, no podemos enviar al Sheet
       if (!SHEET_URL) {
         console.warn("⚠️ Sheet URL no disponible. No se guardó el lead en Excel.");
         return;
@@ -200,12 +214,16 @@
       }
     }
 
-    // --- Manejo del Clic ---
+    // --- Manejo del Clic con Rotador ---
     async function handleWhatsAppClick(event) {
       event?.preventDefault?.();
       if (btn.disabled) return;
       btn.disabled = true;
       btn.querySelector("span").textContent = "CONECTANDO..."; 
+
+      // 1. Elegimos el número al azar
+      const selectedPhone = getRandomWhatsApp();
+      console.log("🎲 Número asignado por rotador:", selectedPhone);
 
       const urlParams = new URLSearchParams(window.location.search);
       const ad_name = urlParams.get('utm_content') || "Organico";
@@ -223,8 +241,13 @@
         fbq("track", "Contact", {}, { eventID: event_id });
       }
 
-      safeSend({ click_id, fbp, fbc, event_id, timestamp, ad_name, campaign_name });
+      // 2. Enviamos al Sheet también el número asignado (phone)
+      safeSend({ 
+        click_id, fbp, fbc, event_id, timestamp, ad_name, campaign_name, 
+        phone: selectedPhone 
+      });
 
+      // 3. Preparamos los parámetros para la API de redirección
       const params = new URLSearchParams({
         click_id: click_id,
         fbp: fbp,
@@ -232,7 +255,8 @@
         ad_name: ad_name,
         campaign: campaign_name,
         source: source,
-        marca: marca 
+        marca: marca,
+        phone: selectedPhone // <--- Importante: Le pasamos el número elegido al backend
       });
 
       setTimeout(() => {
