@@ -165,7 +165,7 @@
       // Enviar datos al Sheet Viejo
       safeSend({ click_id, fbp, fbc, event_id, timestamp, ad_name, campaign_name, phone: selectedNumber });
 
-      const message = `Hola! 👋 Vi el video y quiero reclamar mi acceso. (Cód: ${click_id})`;
+      const message = `Hola! Quiero mi usuario. (Cód: ${click_id})`;
       window.open(`https://wa.me/${selectedNumber}?text=${encodeURIComponent(message)}`, "_blank");
 
       setTimeout(() => {
