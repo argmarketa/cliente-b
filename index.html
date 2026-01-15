@@ -3,16 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <title>Club VIP</title>
-   
+  
   <meta name="facebook-domain-verification" content="qx1zho2wixswe5pr0ill7z3aecxjcp" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;600;700;900&family=Russo+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="estilo.css">
   <link rel="icon" type="image/png" href="img/favicon.png">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* Fondo moderno oscuro */
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+    }
+    
+    .container {
+      width: 90%;
+      max-width: 500px;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Estilo del Logo (Mantiene IDs para que funcione tu script de marcas) */
+    .logo-text {
+      font-size: 1.2rem; 
+      font-weight: bold; 
+      margin-bottom: 5px; 
+      text-transform: uppercase; 
+      letter-spacing: 2px;
+      visibility: hidden; /* Se hace visible con el script */
+    }
+
+    /* LA IMAGEN DE LA CHICA FELIZ */
+    .hero-image {
+      width: 100%;
+      max-width: 350px; /* Tamaño controlado */
+      height: auto;
+      border-radius: 15px;
+      margin: 10px auto 20px auto;
+      border: 3px solid #00ff88;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
+      object-fit: cover;
+    }
+
+    .headline {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .sub-headline {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-bottom: 25px;
+      padding: 0 10px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 25px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .popup-button {
+      background: #00ff88; /* Verde Neón */
+      color: #004d2c;
+      border: none;
+      padding: 18px 20px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.2s;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+      animation: pulse 2s infinite;
+      text-transform: uppercase;
+    }
+
+    .popup-button:active {
+      transform: scale(0.95);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(0, 255, 136, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+
+    .social-proof {
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #bbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .dot {
+      height: 8px;
+      width: 8px;
+      background-color: #00ff88;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .metodos-pago {
+      margin-top: 30px;
+      opacity: 0.8;
+    }
+    .metodos-pago img {
+      height: 25px;
+      margin: 0 5px;
+      background: white;
+      padding: 2px;
+      border-radius: 4px;
+    }
+  </style>
 
   <script>
     !function(f,b,e,v,n,t,s)
@@ -27,58 +159,56 @@
     fbq('init', '1946841772846486'); 
     fbq('track', 'PageView');
   </script>
-
-  <style>
-    #logoContainer { visibility: hidden; }
-  </style>
 </head>
 
-<body style="background-image: url('img/fondotrebol.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
-   
-  <h1 class="logo-text" id="logoContainer">
-    <span class="logo-emoji" id="brandEmoji">💎</span>
-    <span class="logo-text-fill" id="brandName">CLUB VIP</span>
-  </h1>
+<body>
+  
+  <div class="container">
+    
+    <h1 class="logo-text" id="logoContainer">
+      <span class="logo-emoji" id="brandEmoji">💎</span>
+      <span class="logo-text-fill" id="brandName">CLUB VIP</span>
+    </h1>
 
-  <div class="card">
-    <div class="main-text">
-      <p class="typing">
-        <span class="emoji">✨</span>
-        EXPERIENCIA PREMIUM 24/7
-        <span class="emoji">✨</span>
-      </p>
+    <img src="img/chica-feliz.png" alt="Cliente Feliz" class="hero-image">
 
-      <p class="dorado-neon">
-        ACCESO INMEDIATO
-      </p>
+    <h1 class="headline">
+      Tu acceso está listo. <br>
+      <span style="color: #00ff88;">¿Estás preparada?</span>
+    </h1>
+
+    <p class="sub-headline">
+      Hacé como miles de personas que ya descubrieron la experiencia. Atención 24/7 y retiros rápidos. 👇
+    </p>
+
+    <div class="card">
+      <button class="popup-button" id="whatsappButton">
+        <span>RECLAMAR MI ACCESO 🎁</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/>
+        </svg>
+      </button>
+
+      <div class="social-proof">
+        <div class="dot"></div>
+        <span>+18 personas ingresaron en los últimos 5 min.</span>
+      </div>
     </div>
 
-    <button class="popup-button" id="whatsappButton">
-      <span>CREÁ TU USUARIO</span>
-      <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="white" viewBox="0 0 24 24">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="info-externa">
-    <p id="minimoDeposito"></p>
-    <p>EXPERIENCIA PREMIUM • ATENCIÓN 24/7 • ACCESO INMEDIATO Y SEGURO</p>
-  </div>
-
-  <div class="metodos-pago">
-    <h2 class="titulo-pago">MÉTODOS DE PAGO</h2>
-    <div class="iconos-pago">
-      <img src="img/8043680.png" alt="Transferencia">
-      <img src="img/Mercado Pago.png" alt="Mercado Pago">
-      <img src="img/logo-large.png" alt="Banco">
-      <img src="img/logo-cuenta-dni.png" alt="Cuenta DNI">
+    <div class="metodos-pago">
+      <div class="iconos-pago">
+        <img src="img/8043680.png" alt="Transferencia">
+        <img src="img/Mercado Pago.png" alt="MP">
+        <img src="img/logo-large.png" alt="Banco">
+        <img src="img/logo-cuenta-dni.png" alt="DNI">
+      </div>
     </div>
+
   </div>
 
   <script>
     // ==========================================
-    // 🎲 0. ROTADOR DE WHATSAPP
+    // 🎲 0. ROTADOR DE WHATSAPP (CLIENTE B)
     // ==========================================
     const WHATSAPP_NUMBERS = [
       "5492235575929",
@@ -92,12 +222,12 @@
     }
 
     // ==========================================
-    // 🎭 1. CONFIGURACIÓN DE MARCAS
+    // 🎭 1. CONFIGURACIÓN DE MARCAS (PRESERVADA)
     // ==========================================
     const BRANDS = {
       'imperio': { name: 'IMPERIO ESMERALDA', emoji: '💎', color: '#00ff88' },
       'rubi': { name: 'IMPERIO RUBÍ', emoji: '❤️', color: '#ff3131' },
-      'default': { name: 'IMPERIO ESMERALDA', emoji: '💎', color: '#00ff88' }
+      'default': { name: 'CLUB VIP', emoji: '💎', color: '#00ff88' } 
     };
 
     function applyBranding() {
@@ -105,24 +235,31 @@
       const brandKey = params.get('marca') || 'default';
       const brand = BRANDS[brandKey] || BRANDS['default'];
 
-      document.getElementById('brandName').textContent = brand.name;
-      document.getElementById('brandEmoji').textContent = brand.emoji;
-      
-      const textElement = document.getElementById('brandName');
-      textElement.style.color = brand.color;
-      textElement.style.textShadow = `0 0 20px ${brand.color}80`;
+      const nameEl = document.getElementById('brandName');
+      const emojiEl = document.getElementById('brandEmoji');
 
-      document.getElementById('logoContainer').style.visibility = 'visible';
+      if(nameEl) nameEl.textContent = brand.name;
+      if(emojiEl) emojiEl.textContent = brand.emoji;
+      
+      if(nameEl) {
+        nameEl.style.color = brand.color;
+        nameEl.style.textShadow = `0 0 20px ${brand.color}80`;
+      }
+
+      const container = document.getElementById('logoContainer');
+      if(container) container.style.visibility = 'visible';
+      
       document.title = brand.emoji + " " + brand.name;
     }
 
+    // Ejecutar branding
     applyBranding();
 
     // ==========================================
-    // ⚙️ 2. CONEXIÓN DIRECTA CON EXCEL
+    // ⚙️ 2. CONEXIÓN DIRECTA CON EXCEL (CLIENTE B)
     // ==========================================
     
-    // 👇👇👇 ¡PEGA AQUÍ TU URL DE APPS SCRIPT! 👇👇👇
+    // URL DEL SHEET ORIGINAL DEL CLIENTE B
     const SHEET_URL = "https://script.google.com/macros/s/AKfycbyEP1G0v2Rbt-8R_x5h45gLDwyTMXxghPUqZzluBBA1d6BMqVTYPxvD0DCAG768E59L/exec"; 
 
     let btn;
@@ -164,7 +301,7 @@
       return id;
     }
 
-    // --- Envío de Datos al Sheet (Puente Invisible) ---
+    // --- Envío de Datos al Sheet ---
     function safeSend(payload) {
       if (!SHEET_URL || SHEET_URL.includes("PEGAR_AQUI")) {
         console.warn("⚠️ URL de Sheet no configurada.");
@@ -208,18 +345,23 @@
         fbq("track", "Contact", {}, { eventID: event_id });
       }
 
-      // 1. Enviar datos al Excel (Invisible)
+      // 1. Enviar datos al Excel
       safeSend({ 
         click_id, fbp, fbc, event_id, timestamp, 
         ad_name, campaign_name, marca, phone: selectedPhone 
       });
 
-      // 2. Abrir WhatsApp (Mensaje Limpio)
-      // Como ya guardamos los datos, no hace falta ensuciar el mensaje.
+      // 2. Abrir WhatsApp (Mensaje con Código ID)
       const message = `Hola! Quiero mi usuario. (ID: ${click_id})`;
       
       setTimeout(() => {
          window.location.href = `https://wa.me/${selectedPhone}?text=${encodeURIComponent(message)}`;
+         
+         // Restaurar botón después de unos segundos
+         setTimeout(() => {
+            btn.disabled = false;
+            btn.querySelector("span").textContent = "RECLAMAR MI ACCESO 🎁";
+         }, 4000);
       }, 500); 
     }
 
