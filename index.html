@@ -78,22 +78,52 @@
 
   <script>
     // ==========================================
-    // 🎲 0. ROTADOR DE WHATSAPP
+    // ⚙️ 0. CONEXIÓN CEREBRO (APPS SCRIPT)
     // ==========================================
-    const WHATSAPP_NUMBERS = [
-      "5492233441909",
-      "5492233472963",
-      "5492233446712",
-      "5492233442460",
-    ];
+    
+    // 👇 TU URL DE APPS SCRIPT 👇
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbwsOAibwqB_FnITFdJPMvGyFadYh0-zX-cquIO4v_MbiP2eK3IOl6rtPjmgLnKmpJZo/exec"; 
 
+    // LISTA DINÁMICA (Empieza vacía)
+    let WHATSAPP_NUMBERS = [];
+
+    // Función que va a buscar los números vivos al Excel
+    async function actualizarNumerosVivos() {
+      try {
+        console.log("⏳ Conectando con sistema de monitoreo...");
+        const response = await fetch(SHEET_URL); 
+        const numerosVivos = await response.json();
+        
+        if (numerosVivos && Array.isArray(numerosVivos) && numerosVivos.length > 0) {
+          WHATSAPP_NUMBERS = numerosVivos;
+          console.log("✅ Sistema Actualizado. Líneas activas:", WHATSAPP_NUMBERS.length);
+        } else {
+          console.warn("⚠️ El sistema no devolvió números o están todos baneados.");
+        }
+      } catch (error) {
+        console.error("🔥 Error de conexión con el Excel:", error);
+      }
+    }
+
+    // Ejecutamos la carga INMEDIATAMENTE al abrir la web
+    actualizarNumerosVivos();
+
+    // ==========================================
+    // 🎲 1. ROTADOR ALEATORIO
+    // ==========================================
+    
     function getRandomWhatsApp() {
+      // Si la lista está vacía (error de carga o todos baneados), no devuelve nada
+      if (WHATSAPP_NUMBERS.length === 0) {
+         console.error("⛔ No hay líneas disponibles en este momento.");
+         return null; 
+      }
       const randomIndex = Math.floor(Math.random() * WHATSAPP_NUMBERS.length);
       return WHATSAPP_NUMBERS[randomIndex];
     }
 
     // ==========================================
-    // 🎭 1. CONFIGURACIÓN DE MARCAS
+    // 🎭 2. CONFIGURACIÓN DE MARCAS
     // ==========================================
     const BRANDS = {
       'imperio': { name: 'IMPERIO ESMERALDA', emoji: '💎', color: '#00ff88' },
@@ -120,12 +150,9 @@
     applyBranding();
 
     // ==========================================
-    // ⚙️ 2. CONEXIÓN DIRECTA CON EXCEL
+    // 🚀 3. LÓGICA DEL BOTÓN Y TRACKING
     // ==========================================
     
-    // 👇👇👇 ¡PEGA AQUÍ TU URL DE APPS SCRIPT! 👇👇👇
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbyEP1G0v2Rbt-8R_x5h45gLDwyTMXxghPUqZzluBBA1d6BMqVTYPxvD0DCAG768E59L/exec"; 
-
     let btn;
 
     // --- Funciones Auxiliares ---
@@ -165,12 +192,9 @@
       return id;
     }
 
-    // --- Envío de Datos al Sheet (Puente Invisible) ---
+    // --- Envío de Datos al Sheet (Tracking) ---
     function safeSend(payload) {
-      if (!SHEET_URL || SHEET_URL.includes("PEGAR_AQUI")) {
-        console.warn("⚠️ URL de Sheet no configurada.");
-        return;
-      }
+      // Usamos la misma URL para reportar el clic
       try {
         const blob = new Blob([JSON.stringify(payload)], {type : 'text/plain'});
         navigator.sendBeacon(SHEET_URL, blob);
@@ -186,12 +210,27 @@
     // --- Manejo del Clic ---
     async function handleWhatsAppClick(event) {
       event?.preventDefault?.();
+      
+      // Intentamos obtener número
+      let selectedPhone = getRandomWhatsApp();
+
+      // Si no hay números cargados (aún no cargó la web o error), esperamos un poco
+      if (!selectedPhone) {
+         console.log("⏳ Esperando carga de números...");
+         // Pequeño reintento de emergencia
+         await new Promise(r => setTimeout(r, 1000));
+         selectedPhone = getRandomWhatsApp();
+         
+         if (!selectedPhone) {
+             alert("Por favor, recarga la página. Estamos conectando a un asesor.");
+             return;
+         }
+      }
+
       if (btn.disabled) return;
       
       btn.disabled = true;
       btn.querySelector("span").textContent = "CONECTANDO..."; 
-
-      const selectedPhone = getRandomWhatsApp();
 
       const urlParams = new URLSearchParams(window.location.search);
       const ad_name = urlParams.get('utm_content') || "Organico";
@@ -216,11 +255,10 @@
       });
 
       // 2. Abrir WhatsApp (Mensaje Limpio)
-      // Como ya guardamos los datos, no hace falta ensuciar el mensaje.
       const message = `Hola! Quiero mi usuario. (ID: ${click_id})`;
       
       setTimeout(() => {
-         window.location.href = `https://wa.me/${selectedPhone}?text=${encodeURIComponent(message)}`;
+          window.location.href = `https://wa.me/${selectedPhone}?text=${encodeURIComponent(message)}`;
       }, 500); 
     }
 
