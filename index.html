@@ -78,52 +78,59 @@
 
   <script>
     // ==========================================
-    // ⚙️ 0. CONEXIÓN CEREBRO (APPS SCRIPT)
+    // ⚙️ ARQUITECTURA DOBLE (CTO APPROVED)
     // ==========================================
     
-    // 👇 TU URL DE APPS SCRIPT 👇
-    const SHEET_URL = "https://script.google.com/macros/s/AKfycbwsOAibwqB_FnITFdJPMvGyFadYh0-zX-cquIO4v_MbiP2eK3IOl6rtPjmgLnKmpJZo/exec"; 
+    // 1. URL VIEJA: Para guardar LEADS y TRACKING (POST)
+    // (Esta es la que tenías en tu index.html original)
+    const URL_LEADS = "https://script.google.com/macros/s/AKfycbyEP1G0v2Rbt-8R_x5h45gLDwyTMXxghPUqZzluBBA1d6BMqVTYPxvD0DCAG768E59L/exec"; 
 
-    // LISTA DINÁMICA (Empieza vacía)
-    let WHATSAPP_NUMBERS = [];
+    // 2. URL NUEVA: Para consultar NÚMEROS VIVOS (GET)
+    // (Esta es la del nuevo script con RapidAPI)
+    const URL_NUMBERS = "https://script.google.com/macros/s/AKfycbwsOAibwqB_FnITFdJPMvGyFadYh0-zX-cquIO4v_MbiP2eK3IOl6rtPjmgLnKmpJZo/exec";
 
-    // Función que va a buscar los números vivos al Excel
+
+    // ==========================================
+    // 🎲 0. ROTADOR DE WHATSAPP CONECTADO
+    // ==========================================
+    
+    // Lista inicial de seguridad (por si falla la carga)
+    let WHATSAPP_NUMBERS = [
+      "5492233441909",
+      "5492233472963",
+      "5492233446712",
+      "5492233442460"
+    ];
+
+    // Función que conecta con el Script NUEVO (URL_NUMBERS)
     async function actualizarNumerosVivos() {
       try {
-        console.log("⏳ Conectando con sistema de monitoreo...");
-        const response = await fetch(SHEET_URL); 
+        console.log("📡 Consultando estado de líneas...");
+        const response = await fetch(URL_NUMBERS); 
         const numerosVivos = await response.json();
         
         if (numerosVivos && Array.isArray(numerosVivos) && numerosVivos.length > 0) {
           WHATSAPP_NUMBERS = numerosVivos;
-          console.log("✅ Sistema Actualizado. Líneas activas:", WHATSAPP_NUMBERS.length);
+          console.log("✅ Líneas actualizadas desde el Monitor:", WHATSAPP_NUMBERS);
         } else {
-          console.warn("⚠️ El sistema no devolvió números o están todos baneados.");
+          console.warn("⚠️ El monitor no devolvió líneas. Usando lista local.");
         }
       } catch (error) {
-        console.error("🔥 Error de conexión con el Excel:", error);
+        console.warn("⚠️ Error conectando con el monitor de números:", error);
+        // No pasa nada, se usan los números hardcoded arriba como respaldo
       }
     }
 
-    // Ejecutamos la carga INMEDIATAMENTE al abrir la web
+    // Ejecutamos la carga al iniciar
     actualizarNumerosVivos();
 
-    // ==========================================
-    // 🎲 1. ROTADOR ALEATORIO
-    // ==========================================
-    
     function getRandomWhatsApp() {
-      // Si la lista está vacía (error de carga o todos baneados), no devuelve nada
-      if (WHATSAPP_NUMBERS.length === 0) {
-         console.error("⛔ No hay líneas disponibles en este momento.");
-         return null; 
-      }
       const randomIndex = Math.floor(Math.random() * WHATSAPP_NUMBERS.length);
       return WHATSAPP_NUMBERS[randomIndex];
     }
 
     // ==========================================
-    // 🎭 2. CONFIGURACIÓN DE MARCAS
+    // 🎭 1. CONFIGURACIÓN DE MARCAS
     // ==========================================
     const BRANDS = {
       'imperio': { name: 'IMPERIO ESMERALDA', emoji: '💎', color: '#00ff88' },
@@ -150,12 +157,12 @@
     applyBranding();
 
     // ==========================================
-    // 🚀 3. LÓGICA DEL BOTÓN Y TRACKING
+    // 🚀 2. LÓGICA DE TRACKING (Script VIEJO - URL_LEADS)
     // ==========================================
     
     let btn;
 
-    // --- Funciones Auxiliares ---
+    // --- Funciones Auxiliares (INTACTAS) ---
     function getCookie(name) {
       const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
       return match ? match[2] : "";
@@ -192,14 +199,18 @@
       return id;
     }
 
-    // --- Envío de Datos al Sheet (Tracking) ---
+    // --- Envío de Datos al Sheet VIEJO ---
     function safeSend(payload) {
-      // Usamos la misma URL para reportar el clic
+      // AQUÍ USAMOS URL_LEADS (El script original de tracking)
+      if (!URL_LEADS || URL_LEADS.includes("PEGAR_AQUI")) {
+        console.warn("⚠️ URL de Leads no configurada.");
+        return;
+      }
       try {
         const blob = new Blob([JSON.stringify(payload)], {type : 'text/plain'});
-        navigator.sendBeacon(SHEET_URL, blob);
+        navigator.sendBeacon(URL_LEADS, blob);
       } catch (e) {
-        fetch(SHEET_URL, {
+        fetch(URL_LEADS, {
           method: "POST", mode: "no-cors", 
           headers: { "Content-Type": "text/plain;charset=UTF-8" }, 
           body: JSON.stringify(payload)
@@ -210,27 +221,13 @@
     // --- Manejo del Clic ---
     async function handleWhatsAppClick(event) {
       event?.preventDefault?.();
-      
-      // Intentamos obtener número
-      let selectedPhone = getRandomWhatsApp();
-
-      // Si no hay números cargados (aún no cargó la web o error), esperamos un poco
-      if (!selectedPhone) {
-         console.log("⏳ Esperando carga de números...");
-         // Pequeño reintento de emergencia
-         await new Promise(r => setTimeout(r, 1000));
-         selectedPhone = getRandomWhatsApp();
-         
-         if (!selectedPhone) {
-             alert("Por favor, recarga la página. Estamos conectando a un asesor.");
-             return;
-         }
-      }
-
       if (btn.disabled) return;
       
       btn.disabled = true;
       btn.querySelector("span").textContent = "CONECTANDO..."; 
+
+      // 1. OBTENEMOS NÚMERO (Del script NUEVO o respaldo)
+      const selectedPhone = getRandomWhatsApp();
 
       const urlParams = new URLSearchParams(window.location.search);
       const ad_name = urlParams.get('utm_content') || "Organico";
@@ -248,13 +245,13 @@
         fbq("track", "Contact", {}, { eventID: event_id });
       }
 
-      // 1. Enviar datos al Excel (Invisible)
+      // 2. ENVIAMOS DATOS (Al script VIEJO)
       safeSend({ 
         click_id, fbp, fbc, event_id, timestamp, 
         ad_name, campaign_name, marca, phone: selectedPhone 
       });
 
-      // 2. Abrir WhatsApp (Mensaje Limpio)
+      // 3. ABRIR WHATSAPP
       const message = `Hola! Quiero mi usuario. (ID: ${click_id})`;
       
       setTimeout(() => {
