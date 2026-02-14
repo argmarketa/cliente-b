@@ -20,8 +20,7 @@ function normalizeArgentinePhone(rawPhone) {
 }
 
 export default async function handler(req, res) {
-  // 🟢 0. CONFIGURACIÓN CORS (CRÍTICO PARA MAKE/KEITARO)
-  // Esto permite que Make o tus Scripts de Google envíen datos sin bloqueo.
+  // 🟢 0. CONFIGURACIÓN CORS (CRÍTICO)
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -30,7 +29,6 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
   );
 
-  // Responder rápido a las solicitudes "Pre-flight" del navegador/Make
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
@@ -41,8 +39,7 @@ export default async function handler(req, res) {
       return res.status(405).json({ success: false, message: "Método no permitido" });
     }
 
-    // 🔴 1. Autenticación (Token Maestro de la Agencia)
-    // Este token lo defines tú en Vercel (Variable: ADMIN_TOKEN)
+    // 🔴 1. Autenticación
     const auth = req.headers.authorization || "";
     const token = auth.startsWith("Bearer ") ? auth.split(" ")[1] : null;
     
@@ -50,11 +47,8 @@ export default async function handler(req, res) {
       return res.status(401).json({ success: false, error: "No autorizado. Token inválido." });
     }
 
-    // 🟢 2. Recibir Payload (Flexible para Sheet y Make)
+    // 🟢 2. Recibir Payload
     const payload = req.body || {};
-    
-    // Log para depuración en Vercel (Ver qué manda Make)
-    // console.log("[INBOUND] Payload recibido:", JSON.stringify(payload));
 
     let { 
       nombre, 
@@ -69,12 +63,17 @@ export default async function handler(req, res) {
       test_event_code
     } = payload;
 
-    // --- 🛡️ LIMPIEZA DE DATOS ---
-    if (fbc) fbc = String(fbc).trim();
-    if (fbp) fbp = String(fbp).trim();
-    if (event_id) event_id = String(event_id).trim();
-    if (click_id) click_id = String(click_id).trim();
-    if (test_event_code) test_event_code = String(test_event_code).trim();
+    // --- 🛡️ LIMPIEZA ANTIFALLO (Elimina los "N/A" del Sheet) ---
+    const cleanValue = (val) => {
+      if (!val || String(val).trim().toUpperCase() === "N/A" || String(val).trim() === "") return null;
+      return String(val).trim();
+    };
+
+    fbc = cleanValue(fbc);
+    fbp = cleanValue(fbp);
+    event_id = cleanValue(event_id);
+    click_id = cleanValue(click_id);
+    test_event_code = cleanValue(test_event_code);
 
     // 🟢 3. Validación Mínima
     if (!nombre || !phone || !amount) {
@@ -84,9 +83,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🟢 4. Hashing SHA256 (Requisito de Meta)
+    // 🟢 4. Hashing SHA256
     const normalizedPhone = normalizeArgentinePhone(phone);
-    // Si no hay apellido, usamos string vacío para no romper el hash
     const normalizedName = String(nombre || "").trim().toLowerCase();
     const normalizedSurname = String(apellido || "").trim().toLowerCase();
 
@@ -105,36 +103,32 @@ export default async function handler(req, res) {
       }
     }
 
-    // 🟢 6. Lógica de Identificadores (CAPI Deduplication)
-    // Si viene fbp/fbc, intentamos atribuir.
-    const isModoAnuncio = (fbp || fbc);
+    // 🟢 6. Lógica de Identificadores
+    const isModoAnuncio = (fbp || fbc || click_id);
     let final_event_id;
+    
+    // Construcción dinámica de user_data para evitar enviar nulos
     let user_data_payload = {
         ph: [hashedPhone],
         fn: [hashedName],
         ln: [hashedSurname]
     };
 
+    if (fbp) user_data_payload.fbp = fbp;
+    if (fbc) user_data_payload.fbc = fbc;
+
     if (isModoAnuncio) {
-      // Prioridad 1: event_id que mandaste (contact_id del sheet)
-      // Prioridad 2: click_id
-      // Prioridad 3: Generado
       final_event_id = event_id || click_id || `purchase_${Date.now()}_${hashedPhone.substring(0,5)}`; 
-      
-      if (fbp) user_data_payload.fbp = fbp;
-      if (fbc) user_data_payload.fbc = fbc;
     } else {
-      // Modo Offline puro
       final_event_id = `purchase_offline_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     }
 
-    // 🔴 7. Variables de Entorno (DINÁMICAS POR CLIENTE)
+    // 🔴 7. Variables de Entorno
     const PIXEL_ID = process.env.META_PIXEL_ID;
     const ACCESS_TOKEN = process.env.META_ACCESS_TOKEN;
     
     if (!PIXEL_ID || !ACCESS_TOKEN) {
-      console.error("[ERROR CRÍTICO] Faltan variables META_PIXEL_ID o META_ACCESS_TOKEN en Vercel");
-      return res.status(500).json({ success: false, error: "Error de configuración del servidor (Env Vars)" });
+      return res.status(500).json({ success: false, error: "Error de configuración (Env Vars)" });
     }
 
     // 🟢 8. Construir Body para Meta CAPI
@@ -149,7 +143,6 @@ export default async function handler(req, res) {
             currency: "ARS",
             value: parseFloat(amount)
           },
-          // MANTENEMOS TU CONFIGURACIÓN EXITOSA
           action_source: "system_generated", 
         }
       ]
@@ -170,10 +163,9 @@ export default async function handler(req, res) {
 
     const metaJson = await metaResp.json();
 
-    // Logging de auditoría
+    // Logging de auditoría en Vercel
     console.log(
-      `[CAPI] Client Pixel: ${PIXEL_ID} | Amount: ${amount} | FBP: ${fbp ? 'YES' : 'NO'}`,
-      `| Meta Status: ${metaJson.events_received ? 'OK' : 'FAIL'}`
+      `[CAPI] Pixel: ${PIXEL_ID} | Amount: ${amount} | FBP: ${fbp ? 'YES' : 'NO'} | Meta: ${metaJson.events_received ? 'OK' : 'FAIL'}`
     );
     
     if (metaJson.error) {
